@@ -1,0 +1,337 @@
+* {
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Brygada 1918", serif;
+}
+
+.logo {
+    margin-top: 8px;
+    color: white;
+    font-size: 30px;
+
+}
+
+body {
+    overflow-x: hidden;
+}
+
+.main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    padding: 0 10px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+@media screen and (max-width: 576px) {
+
+    .logo {
+        margin-left: 25px;
+        max-width: 80px;
+        max-height: 40px;
+    }
+
+    .btn.btn-support.head {
+        margin-right: 25px;
+        font-size: 20px;
+    }
+
+    .text-section.block1 {
+        max-width: 250px;
+    }
+
+    p.text {
+        font-size: 22px;
+    }
+
+    .btn.btn-support.body1 {
+        font-size: 10px;
+    }
+
+
+    .the-entry-registration-block {
+        font-size: 15px;
+        padding-top: 7px;
+        padding-bottom: 7px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .mb-3 input {
+        padding: 25px;
+        font-size: 12px;
+        border-radius: 5px;
+        margin: auto;
+        margin-block: 25px auto;
+        width: 100%;
+        border-radius: 50pt;
+    }
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    /* Center horizontally */
+    margin-top: 20px;
+    /* Optional: add some margin to the top */
+}
+
+.wrapper {
+    border: 5px solid;
+    border-color: rgba(195, 7, 63, 1);
+    background: #ffffff;
+    max-width: 600px;
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 0 128px 0 rgba(0, 0, 0, 0.1),
+        0 32px 64px -48px rgba(0, 0, 0, 0.5);
+}
+
+.form {
+    padding: 25px 30px;
+}
+
+.form header {
+    font-size: 28px;
+    font-weight: 600;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.form form .error-text {
+    color: #721c24;
+    padding: 8px 10px;
+    text-align: center;
+    border-radius: 5px;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.form form .field {
+    display: flex;
+    align-items: center;
+    margin: 8px;
+    position: relative;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+}
+
+.form form .input input {
+    height: 35px;
+    width: 80%;
+    font-size: 16px;
+    padding: 0 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+
+}
+
+
+.form form .button input {
+    height: 45px;
+    border: none;
+    color: #100d0d;
+    font-size: 12px;
+    background: rgba(235, 143, 175, 0.95);
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 13px;
+    font-weight: bold;
+
+}
+
+.form form .field i {
+    position: absolute;
+    right: 15px;
+    top: 70%;
+    color: #ccc;
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+
+.form form .field i.active::before {
+    color: #333;
+    content: "\f070";
+}
+
+.form .link {
+    text-align: center;
+    margin: 10px 0;
+    font-size: 17px;
+}
+
+.form .link a {
+
+    text-decoration: none
+}
+
+.form .link a:hover {
+    text-decoration: underline;
+}
+
+.button_regis {
+    all: unset;
+    font-size: 20px;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+    color: rgba(195, 7, 63, 1);
+}
+
+
+
+.image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: rgba(78, 78, 80, 1);
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: rgb(255, 255, 255);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-weight: 100;
+}
+
+.dropdown-content a:hover {
+    background-color: rgb(72, 72, 74);
+}
+
+.image-container:hover .dropdown-content {
+    display: block;
+}
+
+
+.help_t {
+    font-size: 30px;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+    font-weight: 500;
+}
+
+.text-container {
+    background-color: white;
+    width: 380px;
+    height: 500px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    border-radius: 30px;
+
+}
+
+/*************************************************************************************/
+.mains {
+    display: flex;
+    height: 89vh;
+
+}
+
+.row {
+    display: flex;
+    flex-grow: 1;
+
+}
+
+.section2 {
+    position: relative;
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow: inset 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    /* Внутренняя тень */
+}
+.section2_2 {
+    position: relative;
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow: inset 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    /* Внутренняя тень */
+}
+.section2::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background-color: rgba(78, 78, 80, 0.58);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+}
+
+/*************КНОПКА ПОИСКА***************/
+* {
+    box-sizing: border-box;
+}
+
+.form1 {
+    position: relative;
+    width: 200px;
+    margin: 0 auto;
+}
+
+.input1 {
+    width: 100%;
+    height: 35px;
+    padding-left: 10px;
+    border: 2px solid rgb(204, 38, 88);
+    border-radius: 5px;
+    outline: none;
+    background: #ffffff;
+    color: #9E9C9C;
+}
+
+.but1 {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    width: 42px;
+    height: 35px;
+    border: none;
+    background: rgba(195, 7, 63, 1);
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+.but1:before {
+    content: "\f002";
+    font-family: FontAwesome;
+    font-size: 16px;
+    color: #F9F0DA;
+}
+
+.but2 {
+    background-color: rgba(255, 255, 255, 1);
+    border-radius: 30pt;
+    padding: 20px;
+    font-size: 20px;
+    color: rgba(195, 7, 63, 1);
+    border: none;
+    transition: background-color 0.3s;
+    /* Добавляем плавный переход */
+}
+
+.but2:hover {
+    color: rgba(255, 255, 255, 1);
+    background-color: rgba(195, 7, 63, 1);
+}
+
+.but2:active {
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+}
+
+.button_section2{
+    cursor: pointer;
+}
+
+
+
+
+
+
+
