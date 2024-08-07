@@ -7,3 +7,4 @@ passlib
 pyjwt
 uvicorn
 bcrypt
+itsdangerous
