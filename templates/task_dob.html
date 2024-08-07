@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <link rel="icon" type="image/png" href="/images/heart.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
@@ -8,127 +7,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/static_css/authorization.css" rel="stylesheet">
     <link href="/static_css/task_plus.css" rel="stylesheet">
-    <meta http-equiv="Content-Type" <header>
-    <link href="https://fonts.googleapis.com/css2?family=Brygada+1918:ital,wght@0,400..700;1,400..700&display=swap"
-        rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <header>
+        <link href="https://fonts.googleapis.com/css2?family=Brygada+1918:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    </header>
 </head>
-
 <body style="background-color: rgba(78, 78, 80, 1);">
     <div class="header">
         <nav class="navbar navbar-expand-lg" style="background-color: rgba(26, 26, 29, 1)">
             <div class="container d-flex justify-content-between col-10 ">
-                <a href="/html/storage.html" style=" text-decoration:none">
+                <a href="/storage.html" style=" text-decoration:none">
                     <p class="logo">Task Manager</p>
                 </a>
-
                 <div class="d-flex  align-items-center">
+                    <a href="https://github.com/rupollya/task_manager" class="hover-image" style="margin-right:40px;" target="_blank">
+                        <img src="/images/github.png" width="55" height="55" alt="GitHub">
+                    </a>
                     <div class="image-container d-flex">
-                        <img src="/images/heart.png" width="45" height="45" class="dropdown-trigger">
-
+                        <img src="/images/heart.png" width="45" height="45" class="dropdown-trigger" >
                         <div class="dropdown-content">
-                            <a href="/html/help.html">Помощь</a>
                             <a href="https://t.me/rupollya">Telegram</a>
                         </div>
                     </div>
                     <div class="image-container d-flex">
-                        <img src="/images/nastroika.png" width="45" height="45" style="margin-left:40px"
-                            class="dropdown-trigger">
+                        <img src="/images/nastroika.png" width="45" height="45" style="margin-left:40px" class="dropdown-trigger">
                         <div class="dropdown-content">
-                            <a href="index.html">Выйти</a>
+                            <a href="/">Выйти</a>
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </nav>
     </div>
 
     <div class="mains">
         <div class="row">
-            <div class="col-1"></div>
-
-            <div class="section1 col-3">
-                <div class="search  d-flex mt-4  align-items-center flex-wrap">
-                    <p class="help_t " style="color:rgba(195, 7, 63, 1);font-size:40px;margin-top:5px; ">Создание</p>
-
-                </div>
-                <div class="today d-flex mt-4 align-items-center flex-wrap">
-                    <img src="/images/pikch1.png" width="45" height="45">
-                    <a href="/html/storage.html?category=today_tasks" style=" text-decoration:none">
-                        <p class="logo button_section2" style="margin-left:9px;margin-top:20px;">Сегодня</p>
-                    </a>
-                </div>
-                <div class=" important d-flex mt-4 align-items-center flex-wrap">
-                    <img src="/images/pikch2.png" width="45" height="45">
-                    <a href="/html/storage.html?category=important_tasks" style=" text-decoration:none">
-                        <p class="logo button_section2" style="margin-left:9px;margin-top:20px;">Важное</p>
-                    </a>
-                </div>
-                <div class="all_tasks d-flex mt-4 align-items-center flex-wrap">
-
-                    <img src="/images/pikch3.png" width="45" height="45">
-                    <a href="/html/storage.html?category=all_tasks" style=" text-decoration:none">
-                        <p class="logo button_section2  all_tasks" style="margin-left:9px;margin-top:20px;">Все задачи
-                        </p>
-                    </a>
-                </div>
-                <div class="completed d-flex mt-4 align-items-center flex-wrap">
-                    <img src="/images/pikch4.png" width="45" height="45">
-                    <a href="/html/storage.html?category=completed_tasks" style=" text-decoration:none">
-                        <p class="logo button_section2" style="margin-left:9px;margin-top:20px;">Завершенные</p>
-                    </a>
-                </div>
-            </div>
-            <div class="section2_2 col-5 ">
-                <div class="heading mt-3">
+            <div class="col-2"></div>
+            <div style="background-repeat: no-repeat;background-size: cover; background-image: url(/images/cloud2.jpg);" class="section2_2 col-7">
+                <div class="heading mt-3 d-flex">
                     <p class="new_task">Заголовок</p>
-                    <input maxlength="18" type="heading" name="heading" id="heading" class="form-control"
-                        placeholder="Писать здесь...">
+                    <input maxlength="13" type="text" name="heading" id="heading" class="form-control"
+                        placeholder="Писать здесь..." value="{{ task.heading if task else '' }}">
                 </div>
                 <div class="textarea mt-3">
-                    <p class="new_task">Новая задача</p>
-                    <textarea maxlength="1000" type="textarea" name="textarea" id="textarea" class="form-control"
-                        placeholder="Писать здесь..."></textarea>
+                     
+                    <textarea maxlength="1000" name="textarea" id="textarea" class="form-control"
+                        placeholder="Текст задачи...">{{ task.task_text if task else '' }}</textarea>
                 </div>
             </div>
             <div class="section3 col-2">
-                <input type="hidden" id="task_id">
+                <input type="hidden" id="task_id" value="{{ task.id if task else '' }}">
                 <div class="date mt-4">
-                    <p style="font-size:15px">Дата создания: <span id="creationDate"></span></p>
+                    <p class="date-text" style="font-size:13px">Дата создания: <span id="creationDate">{{ task.created_at if task else '' }}</span></p>
                     <div class="d-flex">
-                        <p style="font-size:15px">Завершить до: <input type="date" id="completionDate"></p>
+                        <p style="font-size:13px">Завершить до: <input type="date" id="completionDate" value="{{ task.data_stop if task else '' }}"></p>
                     </div>
                 </div>
                 <div class="line"></div>
-                <p class="help_t" style="color:rgba(195, 7, 63, 1);font-size:40px;margin-top:5px;">Теги</p>
+                <p class="help_t" style="color:rgb(12, 12, 12);font-size:40px;margin-top:5px;">Теги</p>
                 <div class="d-flex mt-4">
                     <form>
                         <label style="font-size: 25px;color: white;margin-right: 10px;" for="importantCheckbox">Важное</label>
-                        <input style="background-color: rgba(195, 7, 63, 1);" id="importantCheckbox" type="checkbox">
+                        <input style="background-color: rgb(19, 18, 19);" id="importantCheckbox" type="checkbox" {{ 'checked' if task.important else '' }}>
                     </form>
                 </div>
                 <div class="d-flex mt-4">
                     <form>
                         <label style="font-size: 25px;color: white;margin-right: 10px;" for="completedCheckbox">Завершенное</label>
-                        <input style="background-color: rgba(195, 7, 63, 1);" id="completedCheckbox" type="checkbox">
+                        <input style="background-color: rgb(20, 18, 19);" id="completedCheckbox" type="checkbox" {{ 'checked' if task.completed else '' }}>
                     </form>
                 </div>
-                <p class="help_t" style="color:rgba(195, 7, 63, 1);font-size:20px;margin-top:28px;">Награда за выполнение</p>
-                <textarea maxlength="100" name="prize" id="prize" class="form-control" placeholder="Потрогаю траву..."></textarea>
+                <p class="help_t" style="color:rgb(6, 6, 6);font-size:18px;margin-top:28px;">Награда за выполнение</p>
+                <textarea maxlength="100" name="prize" id="prize" class="form-control" placeholder="Потрогаю траву...">{{ task.prize if task else '' }}</textarea>
                 <div class="d-flex justify-content-center mt-5">
                     <button class="but2" onclick="saveTask()">Сохранить задачу</button>
                 </div>
             </div>
         </div>
     </div>
-    
-    <script src="/js/task_dob.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
-</body>
 
+    <script src="/js/task_dob.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
 </html>

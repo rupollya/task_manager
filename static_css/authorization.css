@@ -10,6 +10,11 @@
     font-size: 30px;
 
 }
+.nologo{
+    margin-top: 8px;
+    color: white;
+    font-size: 25px;
+}
 
 body {
     overflow-x: hidden;
@@ -81,7 +86,7 @@ body {
 
 .wrapper {
     border: 5px solid;
-    border-color: rgba(195, 7, 63, 1);
+    border-color:  #050303;
     background: #ffffff;
     max-width: 600px;
     width: 100%;
@@ -136,7 +141,7 @@ body {
     border: none;
     color: #100d0d;
     font-size: 12px;
-    background: rgba(235, 143, 175, 0.95);
+    background:  #908b8b;
     border-radius: 5px;
     cursor: pointer;
     margin-top: 13px;
@@ -177,7 +182,7 @@ body {
     all: unset;
     font-size: 20px;
     text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
-    color: rgba(195, 7, 63, 1);
+    color:  #908b8b;
 }
 
 
@@ -245,13 +250,13 @@ body {
     position: relative;
     background-color: rgba(255, 255, 255, 1);
     box-shadow: inset 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    /* Внутренняя тень */
+  
 }
 .section2_2 {
     position: relative;
     background-color: rgba(255, 255, 255, 1);
     box-shadow: inset 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    /* Внутренняя тень */
+    
 }
 .section2::before {
     content: "";
@@ -271,19 +276,19 @@ body {
 
 .form1 {
     position: relative;
-    width: 200px;
-    margin: 0 auto;
+    width: 350px;
+     
 }
-
+::placeholder { color: rgb(255, 255, 255); }
 .input1 {
     width: 100%;
     height: 35px;
     padding-left: 10px;
-    border: 2px solid rgb(204, 38, 88);
+    border: 1px solid rgb(44, 40, 40);
     border-radius: 5px;
     outline: none;
-    background: #ffffff;
-    color: #9E9C9C;
+    background: #908b8b;
+    color: #ffffff;
 }
 
 .but1 {
@@ -293,7 +298,7 @@ body {
     width: 42px;
     height: 35px;
     border: none;
-    background: rgba(195, 7, 63, 1);
+    background: rgb(43, 41, 41);
     border-radius: 0 5px 5px 0;
     cursor: pointer;
 }
@@ -310,15 +315,15 @@ body {
     border-radius: 30pt;
     padding: 20px;
     font-size: 20px;
-    color: rgba(195, 7, 63, 1);
+    color: rgb(87, 80, 83);
     border: none;
     transition: background-color 0.3s;
-    /* Добавляем плавный переход */
+ 
 }
 
 .but2:hover {
     color: rgba(255, 255, 255, 1);
-    background-color: rgba(195, 7, 63, 1);
+    background-color:  rgb(87, 80, 83);
 }
 
 .but2:active {
@@ -335,3 +340,58 @@ body {
 
 
 
+
+
+
+
+
+
+
+
+.hidden {
+    display: none;
+}
+.task-detail.active {
+    display: block;
+}
+.task-detail {
+    display: none;
+}
+
+
+
+
+
+.hover-image {
+    position: relative;
+    display: inline-block;
+    width: 55px;
+    height: 55px;
+    cursor: pointer;
+}
+
+.hover-image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+.hover-image::after {
+    content: url('/images/github.png');
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 55px;
+    height: 55px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.hover-image:hover img {
+    opacity: 0;
+}
+
+.hover-image:hover::after {
+    opacity: 1;
+}

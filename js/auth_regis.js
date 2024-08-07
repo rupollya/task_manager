@@ -33,7 +33,7 @@ function checkLogin(event) {
                     document.cookie = "access_token=" + response.access_token + "; path=/; max-age=3600";
                     //и в локал сторадж
                     localStorage.setItem('access_token', response.access_token);
-                    window.location.href = "storage.html";
+                    window.location.href = "/storage.html";
                 } else {
                     console.error('Токен доступа не получен:', response);
                 }
@@ -83,7 +83,7 @@ function checkRegis(event) {
 
             zapros.onload = function () {
                 if (zapros.status === 200) {
-                    window.location.href = "index.html";
+                    window.location.href = "/";
                 } else {
                     
                     try {
@@ -107,3 +107,39 @@ function checkRegis(event) {
 
 
  
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+   
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+             
+            const loginButton = document.querySelector('.b_c');
+            
+ 
+            if (loginButton) {
+                loginButton.click();  
+            }
+            
+        }
+    });
+});
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+           
+ 
+            
+            const b_r = document.querySelector('.b_r');
+ 
+            if (b_r) {
+                b_r.click();  
+            }
+        }
+    });
+});

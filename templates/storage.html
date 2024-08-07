@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/static_css/authorization.css" rel="stylesheet">
     <link href="/static_css/task.css" rel="stylesheet">
-    <meta http-equiv="Content-Type" <header>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link href="https://fonts.googleapis.com/css2?family=Brygada+1918:ital,wght@0,400..700;1,400..700&display=swap"
         rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -18,14 +18,16 @@
 <body style="background-color: rgba(78, 78, 80, 1);">
     <div class="header">
         <nav class="navbar navbar-expand-lg" style="background-color: rgba(26, 26, 29, 1)">
-            <div class="container d-flex justify-content-between col-10 ">
+            <div class="container d-flex justify-content-between col-10">
                 <p class="logo">Task Manager</p>
-                <div class="d-flex  align-items-center">
+                <div class="d-flex align-items-center">
+                    <a href="https://github.com/rupollya/task_manager" class="hover-image" style="margin-right:40px;"
+                        target="_blank">
+                        <img src="/images/github.png" width="55" height="55" alt="GitHub">
+                    </a>
                     <div class="image-container d-flex">
                         <img src="/images/heart.png" width="45" height="45" class="dropdown-trigger">
-
                         <div class="dropdown-content">
-                            <a href="/html/help.html">Помощь</a>
                             <a href="https://t.me/rupollya">Telegram</a>
                         </div>
                     </div>
@@ -33,12 +35,10 @@
                         <img src="/images/nastroika.png" width="45" height="45" style="margin-left:40px"
                             class="dropdown-trigger">
                         <div class="dropdown-content">
-                            <a href="index.html">Выйти</a>
+                            <a href="/">Выйти</a>
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </nav>
     </div>
@@ -46,68 +46,109 @@
     <div class="mains">
         <div class="row">
             <div class="col-1"></div>
-
-            <div class="section1 col-3">
+            <div class="section1 col-2">
                 <div class="search d-flex mt-4 align-items-center flex-wrap">
-                    <p class="help_t" style="color:rgba(195, 7, 63, 1);font-size:40px;margin-top:5px">Поиск</p>
                     <form class="form1" id="searchForm">
-                        <input class="input1" type="text" placeholder="Искать здесь..." id="searchInput">
+                        <input class="input1" type="text" placeholder="Поиск" id="searchInput">
                         <button class="but1" type="submit"></button>
                     </form>
                 </div>
                 <div class="today d-flex mt-4 align-items-center flex-wrap">
-                    <img src="/images/pikch1.png" width="45" height="45">
-                    <a href="/html/storage.html?category=today_tasks" style=" text-decoration:none">
-                        <p class="logo button_section2" style="margin-left:9px;margin-top:20px;" ">Сегодня</p>
+                    <img src="/images/pikch1.png" width="35" height="35">
+                    <a href="/tasks/Сегодня" style="text-decoration:none">
+                        <p class="nologo button_section2" style="margin-left:9px;margin-top:20px;">Сегодня</p>
                     </a>
                 </div>
-                <div class=" important d-flex mt-4 align-items-center flex-wrap">
-                            <img src="/images/pikch2.png" width="45" height="45">
-                            <a href="/html/storage.html?category=important_tasks" style=" text-decoration:none">
-                                <p class="logo button_section2" style="margin-left:9px;margin-top:20px;">Важное</p>
-                            </a>
+                <div class="important d-flex mt-4 align-items-center flex-wrap">
+                    <img src="/images/pikch2.png" width="35" height="35">
+                    <a href="/tasks/Важные" style="text-decoration:none">
+                        <p class="nologo button_section2" style="margin-left:9px;margin-top:20px;">Важные</p>
+                    </a>
                 </div>
                 <div class="all_tasks d-flex mt-4 align-items-center flex-wrap">
-
-                    <img src="/images/pikch3.png" width="45" height="45">
-                    <a href="/html/storage.html?category=all_tasks" style=" text-decoration:none">
-                        <p class="logo button_section2  all_tasks" style="margin-left:9px;margin-top:20px;">Все задачи
+                    <img src="/images/pikch3.png" width="35" height="35">
+                    <a href="/storage.html" style="text-decoration:none">
+                        <p class="nologo button_section2 all_tasks" style="margin-left:9px;margin-top:20px;">Все задачи
                         </p>
                     </a>
                 </div>
                 <div class="completed d-flex mt-4 align-items-center flex-wrap">
-                    <img src="/images/pikch4.png" width="45" height="45">
-                    <a href="/html/storage.html?category=completed_tasks" style=" text-decoration:none">
-                        <p class="logo button_section2" style="margin-left:9px;margin-top:20px;">Завершенные</p>
+                    <img src="/images/pikch4.png" width="35" height="35">
+                    <a href="/tasks/Завершенные" style="text-decoration:none">
+                        <p class="nologo  button_section2" style="margin-left:9px;margin-top:20px;">Завершенные</p>
                     </a>
+                </div>
+            </div>
+            <div style="background-repeat: no-repeat;background-size: cover; background-image: url(/images/cloud.jpg);"
+                class="section2 col-5">
+                <p id="select" class="select">{{ category }}</p>
+                <div id="tasksContainer" class="tasksContainer">
+                    {% for task in tasks %}
+                    <form method="GET" action="/tasks/{{ task.task_id }}" class="task-form">
+                        <div class="task" data-task-id="{{ task.task_id }}">
+                            <div class="d-flex justify-content-between" id="box">
+                                <div class="d-flex">
+                                    <img src="/images/love.png" width="45" height="45">
+                                    <button type="button" class="task_section2 selected-task-btn"
+                                        style="cursor:pointer; background:none; border:none; color:inherit;">
+                                        {{ task.heading }}
+                                    </button>
+                                </div>
+                                <div class="d-flex">
+                                    <img src="/images/redak.png" width="35" height="35"
+                                        redak-task-id="{{ task.task_id }}" class="redak-task-btn"
+                                        style="margin-right:8px;cursor: pointer;">
+                                    <img src="/images/bin.png" width="35" height="35" data-task-id="{{ task.task_id }}"
+                                        class="delete-task-btn" style="cursor:pointer;">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    {% endfor %}
                 </div>
                 <div class="d-flex justify-content-center mt-3">
-                    <a href="/html/task_dob.html">
-                        <button class="but2">Добавить задачу</button>
+                    <a href="/task_dob.html">
+                        <button id="addTaskButton" class="but2">Добавить задачу</button>
                     </a>
-
-                </div>
-
-            </div>
-            <div class="section2 col-5  ">
-                <p id="select" class="select"></p>
-                <div id="tasksContainer" class="tasksContainer">
-                    <!--сюда выводим задачи-->
                 </div>
             </div>
-            <div class="section3 col-2"></div>
-        </div>
-    </div>
+            <div class="section3 col-3">
+                {% for task in tasks %}
+                <div class="task-detail" data-task-id="{{ task.task_id }}">
+                    <div class="d-flex" style="margin-top: 10px;">
+                        <h3 class="heading_3">{{ task.heading }}</h3>
+                    </div>
+                    <hr>
+                    <div class="d-flex" >
+                        <p style="color:white" id="creationDate-{{ task.task_id }}" class="date-text">Дата создания: {{
+                            task.created_at }}</p>
+                    </div>
+                    <div class="d-flex" style="margin-top: 2px;">
+                        <p style="color:white" id="dueDate-{{ task.task_id }}" class="date-text">Срок: {{ task.data_stop
+                            }}</p>
+                    </div>
+                    <hr>
+                    <div class="d-flex">
+                        <img src="/images/love.png" width="35" height="35">
+                        <p style="margin-left: 20px;color: white;font-size: 20px;">Поставленная задача</p>
+                    </div>
 
+                    <textarea class="textarea_3" readonly>{{ task.task_text }}</textarea>
+                    <div class="d-flex" style="margin-top: 10px;">
+                        <img src="/images/drop.png" width="35" height="35">
+                        <p style="margin-left: 20px;color:white" class="prize_text" ">Награда за выполнение</p>
+                    </div>
+                    
+                    <textarea placeholder=" Здесь пусто..." class="textarea_3_1" readonly>{{ task.prize }}</textarea>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
 
-
-
-
-    <script src="/js/storage.js"></script>
-    <script src="/js/brp.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+                crossorigin="anonymous"></script>
+            <script src="/js/storage.js"></script>
 </body>
 
 </html>

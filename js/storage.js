@@ -1,146 +1,124 @@
-function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const formattedDate = new Date(dateString).toLocaleDateString('ru-RU', options);
-    return formattedDate;
-}
-
-
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
 document.addEventListener('DOMContentLoaded', function () {
-    var urlParams = new URLSearchParams(window.location.search);
-    var category = urlParams.get('category');
-    const token = getCookie('access_token');
+    var tasksContainer = document.getElementById('tasksContainer');
 
-    if (!token) {
-        console.error('Токен не найден, пользователь не аутентифицирован');
-        return;
-    }
-
-    if (category === 'all_tasks') {
-        loadAllTasks();
-    } else if (category === 'today_tasks') {
-        loadTodayTasks();
-    } else if (category === 'important_tasks') {
-        loadImportantTasks();
-    } else if (category === 'completed_tasks') {
-        loadCompletedTasks();
-    } else {
-        loadAllTasks();
-    }
-
-    function loadAllTasks() {
-        fetchTasks('/tasks', 'Все задачи');
-    }
-
-    function loadTodayTasks() {
-        fetchTasks('/tasks_today', 'Сегодня');
-    }
-
-    function loadImportantTasks() {
-        fetchTasks('/tasks_important', 'Важное');
-    }
-
-    function loadCompletedTasks() {
-        fetchTasks('/tasks_completed', 'Завершенное');
-    }
-
-    async function fetchTasks(url, categoryName) {
-        try {
-            var response = await fetch(url, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            var tasks = await response.json();
-
-            var tasksContainer = document.getElementById('tasksContainer');
-            tasksContainer.innerHTML = '';
-            tasks.forEach(function (task) {
-                var taskElement = createTaskElement(task);
-                tasksContainer.appendChild(taskElement);
-            });
-
-            var select = document.getElementById('select');
-            select.textContent = categoryName;
-            var section2 = document.querySelector('.section2');
-            section2.style.display = 'block';
-
-        } catch (error) {
-            console.error(`Ошибка при получении задач (${categoryName}):`, error);
-        }
-    }
-
-    function createTaskElement(task) {
-        var taskElement = document.createElement('div');
-        taskElement.classList.add('task');
-        taskElement.dataset.taskId = task.task_id;
-
-        var formattedDate = formatDate(task.created_at);
-        taskElement.innerHTML = `
-            <div class="d-flex justify-content-between" id="box"> 
-                <div class="d-flex">
-                    <img src="/images/love.png" width="45" height="45">
-                    <h3 class="task_section2 selected-task-btn" style="cursor:pointer;">${task.heading}</h3>
-                </div>
-                <div class="d-flex">
-                    <img src="/images/redak.png" width="35" height="35" redak-task-id="${task.task_id}" class="redak-task-btn" style="margin-right:8px;cursor: pointer;">
-                    <img src="/images/bin.png" width="35" height="35" data-task-id="${task.task_id}" class="delete-task-btn" style="cursor:pointer;">
-                </div>
-            </div>
-        `;
-
-        var selectedButton = taskElement.querySelector('.selected-task-btn');
-        selectedButton.addEventListener('click', function (event) {
+    tasksContainer.querySelectorAll('.delete-task-btn').forEach(button => {
+        button.addEventListener('click', function (event) {
             event.stopPropagation();
-            var taskId = task.task_id;
-            console.log(`Кнопка показа задачи с ID ${taskId} была жмякнута`);
-            loadTaskById(taskId);
-        });
-
-        var deleteButton = taskElement.querySelector('.delete-task-btn');
-        deleteButton.addEventListener('click', function (event) {
-            event.stopPropagation();
-            var taskId = task.task_id;
+            var taskId = this.dataset.taskId;
             console.log(`Кнопка удаления задачи с ID ${taskId} была жмякнута`);
             deleteTask(taskId);
         });
+    });
 
-        var redakButton = taskElement.querySelector('.redak-task-btn');
-        redakButton.addEventListener('click', function (event) {
+    tasksContainer.querySelectorAll('.redak-task-btn').forEach(button => {
+        button.addEventListener('click', function (event) {
             event.stopPropagation();
-            var taskId = task.task_id;
+            var taskId = this.getAttribute('redak-task-id');
             console.log(`Кнопка редактирования задачи с ID ${taskId} была жмякнута`);
-            window.location.href = `/html/task_dob.html?task_id=${taskId}`;
+            window.location.href = `/task_dob.html?task_id=${taskId}`;
         });
+    });
 
-
-        return taskElement;
+    function deleteTask(taskId) {
+        fetch(`/tasks/${taskId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${document.cookie.split('=')[1]}`,
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                console.error(`Ошибка при удалении задачи с ID ${taskId}`);
+            }
+        }).catch(error => {
+            console.error(`Ошибка при удалении задачи с ID ${taskId}:`, error);
+        });
     }
 });
 
+async function deleteTask(task_id) {
+    const token = getCookie('access_token');
+    try {
+        console.log(`Sending request to delete task with ID ${task_id}`);
+        const response = await fetch(`/tasks/${task_id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        console.log(`Server response status: ${response.status}`);
+        if (response.ok) {
+            console.log(`Task with ID ${task_id} successfully deleted from server.`);
+            const deletedTaskElement = document.querySelector(`.task[data-task-id="${task_id}"]`);
+            if (deletedTaskElement) {
+                deletedTaskElement.remove();
+                console.log(`Task element with ID ${task_id} successfully removed from DOM`);
+            } else {
+                console.error(`Task element with ID ${task_id} not found in DOM`);
+            }
+        } else {
+            console.error('Error deleting task:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error deleting task:', error);
+    }
+}
 
 
 
+document.addEventListener('DOMContentLoaded', function () {
+    const taskButtons = document.querySelectorAll('.selected-task-btn');
+    const taskDetails = document.querySelectorAll('.task-detail');
 
+    taskButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const selectedTaskId = this.closest('.task').dataset.taskId;
 
+            // Скрыть все детали задач
+            taskDetails.forEach(detail => {
+                detail.classList.remove('active');
+            });
 
+            // Показать только выбранную задачу
+            const selectedTaskDetail = Array.from(taskDetails).find(detail => detail.dataset.taskId === selectedTaskId);
+            if (selectedTaskDetail) {
+                selectedTaskDetail.classList.add('active');
+            }
+        });
+    });
+});
+document.addEventListener('DOMContentLoaded', function () {
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = {
+            weekday: 'long',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        };
+        const formatter = new Intl.DateTimeFormat('ru-RU', options);
+        return formatter.format(date);
+    }
 
+    document.querySelectorAll('.date-text').forEach(element => {
+        const originalText = element.textContent;
+        const dateMatch = originalText.match(/Дата создания: (.+)/) || originalText.match(/Срок: (.+)/);
 
-
-
+        if (dateMatch) {
+            const formattedDate = formatDate(dateMatch[1]);
+            element.textContent = originalText.replace(dateMatch[1], formattedDate);
+        }
+    });
+});
 //ПОИСК
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     var searchForm = document.getElementById('searchForm');
     var searchInput = document.getElementById('searchInput');
 
-    searchForm.addEventListener('submit', function(event) {
+    searchForm.addEventListener('submit', function (event) {
         event.preventDefault();
         var task = searchInput.value.trim().toLowerCase(); // исправлено на trim()
 
@@ -149,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function filterTasks(task) {
         var tasks = document.querySelectorAll('.task'); // исправлено на querySelectorAll
-        tasks.forEach(function(taskElement) {
+        tasks.forEach(function (taskElement) {
             var heading = taskElement.querySelector('.task_section2').textContent.toLowerCase(); // исправлено на querySelector
             if (heading.includes(task)) {
                 taskElement.style.display = 'block';
@@ -159,3 +137,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+
+
+

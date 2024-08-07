@@ -1,0 +1,8 @@
+databases
+asyncpg
+sqlalchemy
+starlette
+jinja2
+passlib
+pyjwt
+uvicorn
