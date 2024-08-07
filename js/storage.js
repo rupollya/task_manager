@@ -77,12 +77,12 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function () {
             const selectedTaskId = this.closest('.task').dataset.taskId;
 
-            // Скрыть все детали задач
+            //скрываем детали задачи
             taskDetails.forEach(detail => {
                 detail.classList.remove('active');
             });
 
-            // Показать только выбранную задачу
+             //и показываем только нужную
             const selectedTaskDetail = Array.from(taskDetails).find(detail => detail.dataset.taskId === selectedTaskId);
             if (selectedTaskDetail) {
                 selectedTaskDetail.classList.add('active');
@@ -120,15 +120,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     searchForm.addEventListener('submit', function (event) {
         event.preventDefault();
-        var task = searchInput.value.trim().toLowerCase(); // исправлено на trim()
+        var task = searchInput.value.trim().toLowerCase();  
 
         filterTasks(task);
     });
 
     function filterTasks(task) {
-        var tasks = document.querySelectorAll('.task'); // исправлено на querySelectorAll
+        var tasks = document.querySelectorAll('.task'); 
         tasks.forEach(function (taskElement) {
-            var heading = taskElement.querySelector('.task_section2').textContent.toLowerCase(); // исправлено на querySelector
+            var heading = taskElement.querySelector('.task_section2').textContent.toLowerCase();  
             if (heading.includes(task)) {
                 taskElement.style.display = 'block';
             } else {
