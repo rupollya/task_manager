@@ -20,8 +20,8 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 Base = declarative_base()
 
-#DATABASE_URL = ("postgresql+asyncpg://task_olse_user:gI8FDezk9tO6y540ne8l91gnJ46Hyc8K@dpg-cqfm355ds78s73c0taog-a.frankfurt-postgres.render.com/task_olse")
-DATABASE_URL = DATABASE_URL = ("postgresql+asyncpg://postgres:owIbyag820022013@localhost:3306/task_manager")
+DATABASE_URL = ("postgresql+asyncpg://task_olse_user:gI8FDezk9tO6y540ne8l91gnJ46Hyc8K@dpg-cqfm355ds78s73c0taog-a.frankfurt-postgres.render.com/task_olse")
+
 database = Database(DATABASE_URL)
 engine = create_async_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
