@@ -1,221 +1,86 @@
-from starlette.applications import Starlette
-from starlette.responses import JSONResponse
-from starlette.templating import Jinja2Templates
-from starlette.staticfiles import StaticFiles
-from starlette.routing import Route, Mount
-from databases import Database
-import sqlalchemy
-from datetime import datetime
-import datetime
-from starlette.requests import Request
-import json
-from fastapi import Request, HTTPException
-
-DATABASE_URL = "postgresql://postgres:owIbyag820022013@localhost:3306/task_manager"
-DATABASE_URL = "postgresql+asyncpg://postgres:owIbyag820022013@localhost:3306/task_manager"
-# Подключение к базе данных
-database = Database(DATABASE_URL)
-metadata = sqlalchemy.MetaData()
-templates = Jinja2Templates(directory="templates")
-
-# Определение таблицы Task с использованием SQLAlchemy
-tasks = sqlalchemy.Table(
-    "task",
-    metadata,
-    sqlalchemy.Column("task_id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("user_id", sqlalchemy.Integer),
-    sqlalchemy.Column("created_at", sqlalchemy.DateTime),
-    sqlalchemy.Column("important", sqlalchemy.Boolean, default=False),
-    sqlalchemy.Column("completed", sqlalchemy.Boolean, default=False),
-    sqlalchemy.Column("heading", sqlalchemy.Text),
-    sqlalchemy.Column("task_text", sqlalchemy.Text),
-    sqlalchemy.Column("data_stop", sqlalchemy.DateTime),
-    sqlalchemy.Column("prize", sqlalchemy.Text),
-)
-
-User = sqlalchemy.Table(
-    'users', metadata,
-    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column('username', sqlalchemy.String),
-    sqlalchemy.Column('password', sqlalchemy.String),
-)
-
-# Страницы
-async def homepage(request):
-    return templates.TemplateResponse("index.html", {"request": request})
+@pytest.mark.asyncio
+async def test_user_registration():
+    async with httpx.AsyncClient(app=app, base_url="http://testserver") as client:
+        response = await client.post(
+            "/registration",
+            json={
+                "login": "test_user",
+                "password": "test_password",
+            },  # надо менять если новое
+        )
+        assert response.status_code == 200, f"Ошибка регистрации: {response.text}"
 
 
-# РАБОТА С ТАБЛИЦЕЙ ЗАДАЧ
+
+# Тест на авторизацию после регистрации  РАБ
+@pytest.mark.asyncio
+async def test_user_authentication():
+    async with httpx.AsyncClient(app=app, base_url="http://testserver") as client:
+        registration_response = await client.post(
+            "/registration",
+            json={
+                "login": "test_user_auth1",
+                "password": "test_password_auth",
+            },
+        )
+        assert registration_response.status_code == 200, f"Ошибка регистрации: {registration_response.text}"
+
+        # АВТОРИЗУЕМСЯ
+        auth_response = await client.post(
+            "/auth",  
+            json={
+                "login": "test_user_auth1",
+                "password": "test_password_auth",
+            },
+        )
+        assert auth_response.status_code == 200, f"Ошибка авторизации: {auth_response.text}"
+        assert "access_token" in auth_response.json(), "Токен доступа не был возвращен"
 
 
-# Получение задачи по ID
-async def get_task_by_id(request):
-    task_id = int(request.path_params["task_id"])
-    query = tasks.select().where(tasks.c.task_id == task_id)
-    result = await database.fetch_one(query)
-    if result:
-        task = dict(result)
-        task["created_at"] = task["created_at"].isoformat()
-        task["data_stop"] = task["data_stop"].isoformat()
-        return JSONResponse(task)
-    else:
-        return JSONResponse({"error": "Task not found"}, status_code=404)
+# тест на добавление новой задачи 
+@pytest.mark.asyncio
+async def test_create_task():
+    async with httpx.AsyncClient(app=app, base_url="http://testserver") as client:
+        # Регистрация нового пользователя
+        registration_response = await client.post(
+            "/registration",
+            json={
+                "login": "test212",
+                "password": "test212",
+            },
+        )
+        assert registration_response.status_code == 200, f"Ошибка регистрации: {registration_response.text}"
 
+        # Авторизация пользователя
+        auth_response = await client.post(
+            "/auth",  
+            json={
+                "login": "test212",
+                "password": "test212",
+            },
+        )
+        assert auth_response.status_code == 200, f"Ошибка авторизации: {auth_response.text}"
+        access_token = auth_response.json()["access_token"]
 
-# удаление задачи
-async def delete_task(request):
-    task_id = int(request.path_params["task_id"])  # Получаем task_id из URL
-    query = tasks.delete().where(tasks.c.task_id == task_id)
-    await database.execute(query)
-    return JSONResponse({"message": f"Задача с id={task_id} удалена"})
+        # Проверка, что токен действителен
+        print(f"Токен доступа: {access_token}")
+        access_token = auth_response.json()["access_token"]
 
+        client.cookies.set("access_token", access_token) 
 
-#                                                                                                      получаем все задачи(пока просто все)
-async def get_tasks(request):
-    question = tasks.select()  # проходимя по таблице
-    results = await database.fetch_all(
-        question
-    )  # записываем в результат результат запроса, переменная results содержит список объектов Row
-    tasks_list = []
-    for row in results:
-        task = dict(
-            row
-        )  # объекты Row превращаем в словарь, используя конструкцию task = dict(row)
-        task["created_at"] = task[
-            "created_at"
-        ].isoformat()  # преобразуем datetime в строку
-        task["data_stop"] = task["data_stop"].isoformat()
-        tasks_list.append(task)
+        #создание новой задачи
+        task_data = {
+            "heading": "Task",
+            "task_text": "This is a test task.",
+            "prize": "100",
+            "important": True,
+            "completed": False,
+            "data_stop": "20-02-2025"
+        }
 
-    return JSONResponse(tasks_list)
-
-
-#                                                                                                                     ЗАДАЧИ СЕГОДНЯ
-async def get_tasks_today(request):
-    twenty_four_hours_ago = datetime.datetime.now() - datetime.timedelta(hours=24)
-    # фильтруем сегодняшнее
-    question = tasks.select().where(tasks.c.created_at >= twenty_four_hours_ago)
-    results = await database.fetch_all(question)
-    tasks_list = []
-    for row in results:
-        task = dict(row)
-        task["created_at"] = task["created_at"].isoformat()
-        task["data_stop"] = task["data_stop"].isoformat()
-        tasks_list.append(task)
-
-    return JSONResponse(tasks_list)
-
-
-#                                                                                                                     ЗАДАЧИ ВАЖНЫЕ
-async def get_important_tasks(request):
-    query = tasks.select().where(tasks.c.important == True)
-    results = await database.fetch_all(query)
-
-    tasks_list = []
-    for row in results:
-        task = dict(row)
-        task["created_at"] = task["created_at"].isoformat()
-        task["data_stop"] = task["data_stop"].isoformat()
-        tasks_list.append(task)
-
-    return JSONResponse(tasks_list)
-
-
-#                                                                                                                    ЗАДАЧИ ЗАВЕРШЕННЫЕ
-async def get_completed_tasks(request):
-    query = tasks.select().where(tasks.c.completed == True)
-    results = await database.fetch_all(query)
-
-    tasks_list = []
-    for row in results:
-        task = dict(row)
-        task["created_at"] = task["created_at"].isoformat()
-        task["data_stop"] = task["data_stop"].isoformat()
-        tasks_list.append(task)
-
-    return JSONResponse(tasks_list)
-
-
-#           СОЗДАНИЕ ЗАДАЧИ
-async def create_task(request: Request):
-    data = await request.json()
-    user_id = data.get("user_id")
-    heading = data.get("heading")
-    task_text = data.get("task_text")
-    prize = data.get("prize")
-    important = data.get("important", False)
-    completed = data.get("completed", False)
-    data_stop = data.get("data_stop")
-
-    try:
-        data_stop = datetime.datetime.strptime(data_stop, "%Y-%m-%d").date()
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Неверный формат")
-
-    query = tasks.insert().values(
-        user_id=user_id,
-        heading=heading,
-        task_text=task_text,
-        prize=prize,
-        important=important,
-        completed=completed,
-        data_stop=data_stop,
-        created_at=datetime.datetime.now(),
-    )
-    await database.execute(query)
-
-    response_data = {
-        "user_id": user_id,
-        "heading": heading,
-        "task_text": task_text,
-        "prize": prize,
-        "important": important,
-        "completed": completed,
-        "data_stop": data_stop.isoformat(),
-        "created_at": datetime.datetime.now().isoformat(),
-    }
-
-
-    print("Отправляемые данные на клиент:", response_data)
-    return JSONResponse(response_data, status_code=201)
-
-
-# ВСЕ ТАБЛИЦЫ
-async def get_tables(request):
-    engine = sqlalchemy.create_engine(DATABASE_URL)
-    meta = sqlalchemy.MetaData()
-    meta.reflect(bind=engine)
-    table_names = list(meta.tables.keys())  # преобразуем dict_keys в список
-    return JSONResponse(table_names)
-
-
-# МАРШРУТЫ ДЭФ
-routes = [
-    Route("/", endpoint=homepage),
-    Route("/tables", endpoint=get_tables, methods=["GET"]),
-    Mount("/static_css", StaticFiles(directory="static_css"), name="static_css"),
-    Mount("/html", StaticFiles(directory="templates"), name="html"),
-    Mount("/images", StaticFiles(directory="images"), name="images"),
-    Mount("/js", StaticFiles(directory="js"), name="js"),
-    Route("/tasks", endpoint=get_tasks, methods=["GET"]),  # все задачи
-    Route("/tasks_today", endpoint=get_tasks_today, methods=["GET"]),
-    Route("/tasks_important", endpoint=get_important_tasks, methods=["GET"]),
-    Route("/tasks_completed", endpoint=get_completed_tasks, methods=["GET"]),
-    Route("/create_task", endpoint=create_task, methods=["POST"]),
-    Route("/tasks/{task_id}", endpoint=delete_task, methods=["DELETE"]),
-    Route("/tasks/{task_id:int}", get_task_by_id, methods=["GET"]),
-]
-
-
-app = Starlette(debug=True, routes=routes)
-
-
-# Подключение и отключение базы данных
-@app.on_event("startup")
-async def startup():
-    await database.connect()
-
-
-@app.on_event("shutdown")
-async def shutdown():
-    await database.disconnect()
+        create_task_response = await client.post(
+            "/task_dob.html",
+            json=task_data,
+        )
+        
+        assert create_task_response.status_code == 200, f"Ошибка создания задачи: {create_task_response.text}"

@@ -33,30 +33,28 @@
         <div class="wrapper">
             <section class="form signup">
                 <header ALIGN="center">Авторизация</header>
-                <form>
-                    <div class="error-text"></div>
-
-                    <div class="field input ">
-                        <label class="col-2">Логин:</label>
-                        <input type="text" name="login" id="login" class="form-control" placeholder="your username"
-                            required>
-                        <div class="invalid-feedback" style="font-size: 14px;">Заполните это поле!</div>
+                <form method="POST" action="/auth" novalidate>
+                    <div class="field input">
+                        <label for="login" class="col-2">Логин:</label>
+                        <input type="text" name="login" id="login" class="form-control" placeholder="your username" required maxlength="10" value="{{ login }}">
+                        {% if form_errors.login %}
+                            <div class="invalid-feedback d-block">{{ form_errors.login }}</div>
+                        {% endif %}
                     </div>
                     <div class="field input">
-                        <label class="col-2">Пароль:</label>
-                        <input type="password" name="password" id="password" class="form-control"
-                            placeholder="your password" required>
-                        <div class="invalid-feedback" style="font-size: 14px;">Пароль должен содержать не менее 8
-                            символов!</div>
+                        <label for="password" class="col-2">Пароль:</label>
+                        <input type="password" name="password" id="password" class="form-control" placeholder="your password" required minlength="8" maxlength="16">
+                        {% if form_errors.password %}
+                            <div class="invalid-feedback d-block">{{ form_errors.password }}</div>
+                        {% endif %}
                     </div>
                     <div class="link">
                         <a href="/registration.html" style="color:rgb(66, 62, 63);">Зарегистрироваться</a>
                     </div>
 
                     <div class="button-container d-flex justify-content-end">
-                        <button type="button" class="button_regis b_c" onclick="checkLogin(event)">Войти</button>
+                        <button type="submit" class="button_regis b_c">Войти</button>
                     </div>
-
                 </form>
 
 

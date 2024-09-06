@@ -8,7 +8,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker, relationship
 from starlette.applications import Starlette
-from starlette.authentication import AuthCredentials, AuthenticationBackend, SimpleUser, requires
+from starlette.authentication import (
+    AuthCredentials,
+    AuthenticationBackend,
+    SimpleUser,
+    requires,
+)
+from starlette.responses import JSONResponse, RedirectResponse
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.responses import JSONResponse
 from starlette.routing import Route, Mount
@@ -18,17 +24,20 @@ from starlette.authentication import UnauthenticatedUser
 from starlette.responses import HTMLResponse
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
+from starlette.exceptions import HTTPException
+
 Base = declarative_base()
 
-#DATABASE_URL = ("postgresql+asyncpg://task_olse_user:gI8FDezk9tO6y540ne8l91gnJ46Hyc8K@dpg-cqfm355ds78s73c0taog-a.frankfurt-postgres.render.com/task_olse")
-DATABASE_URL = "postgresql+asyncpg://postgres:5578@87.242.118.242:5432/task"
-
-
+# DATABASE_URL = ("postgresql+asyncpg://task_olse_user:gI8FDezk9tO6y540ne8l91gnJ46Hyc8K@dpg-cqfm355ds78s73c0taog-a.frankfurt-postgres.render.com/task_olse")
+#DATABASE_URL = DATABASE_URL = (
+  #  "postgresql+asyncpg://rupollya:OHaPCP0d0V2pPX8rPLe4fOmMPsL7IunF@dpg-crau43tds78s73da84m0-a.frankfurt-postgres.render.com/task_9jlk"
+#)
+DATABASE_URL = ("postgresql+asyncpg://postgres:55785578@77.222.43.163:5432/task_manager")
 database = Database(DATABASE_URL)
 engine = create_async_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
- 
-#шаблоны
+
+# шаблоны
 templates = Jinja2Templates(directory="templates")
 
 SECRET_KEY = "POLLYMANAGERTASKED"
@@ -36,6 +45,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 3000
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 class Task(Base):
     __tablename__ = "task"
@@ -51,6 +61,7 @@ class Task(Base):
     prize = Column(Text)
     user = relationship("User")
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -59,15 +70,18 @@ class User(Base):
     password = Column(String)
     tasks = relationship("Task")
 
+
 # Сверияем введенный пароль с хешированным
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-#получаем хэш пароль
+
+# получаем хэш пароль
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-#токен
+
+# токен
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
@@ -78,7 +92,8 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-#извлекаем инф из токена досутпа
+
+# извлекаем инф из токена досутпа
 def decode_access_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -88,11 +103,12 @@ def decode_access_token(token: str):
     except jwt.InvalidTokenError:
         return None
 
+
 class JWTAuthenticationBackend(AuthenticationBackend):
     async def authenticate(self, request: Request):
         # Извлекаем токен из cookies
         token = request.cookies.get("access_token")
-        
+
         if not token:
             return AuthCredentials(), UnauthenticatedUser()
 
@@ -106,63 +122,116 @@ class JWTAuthenticationBackend(AuthenticationBackend):
         if payload is None:
             return AuthCredentials(), UnauthenticatedUser()
 
-         
         return AuthCredentials(["authenticated"]), SimpleUser(payload["sub"])
 
+
 async def homepage(request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
- 
-
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "form_errors": {}, "login": ""}
+    )
 
 
 async def registration_html(request: Request):
-    return templates.TemplateResponse("registration.html", {"request": request})
-#регистрация нового пользователя
-async def registration(request):
-    data = await request.json()
-    async with SessionLocal() as session:
-        async with session.begin():
-            try:
-                user = User(
-                    login=data["login"], password=get_password_hash(data["password"])
-                )
-                session.add(user)
-                await session.commit()
-                return JSONResponse({"message": "Регистрация прошла успешно."})
-            except Exception as e:
-                await session.rollback()
-                return JSONResponse({"error": str(e)}, status_code=400)
+    return templates.TemplateResponse(
+        "registration.html", {"request": request, "form_errors": {}, "login": ""}
+    )
 
- 
-#авторизациы пользователя
+
+async def registration(request: Request):
+    form_errors = {}
+    login = ""
+
+    if request.method == "POST":
+        data = await request.form()
+        login = data.get("login", "")
+        password = data.get("password", "")
+
+        if not login:
+            form_errors["login"] = "Логин не может быть пустым."
+
+        if len(password) < 8:
+            form_errors["password"] = "Пароль должен быть не менее 8 символов."
+
+        if not form_errors:
+            async with SessionLocal() as session:
+                async with session.begin():
+                    existing_user = await session.execute(
+                        select(User).where(User.login == login)
+                    )
+                    if existing_user.scalars().first():
+                        form_errors["login"] = (
+                            "Пользователь с таким логином уже существует."
+                        )
+                    else:
+                        user = User(
+                            login=login,
+                            password=get_password_hash(password),
+                        )
+                        session.add(user)
+                        await session.commit()
+                        return RedirectResponse("/", status_code=302)
+
+    return templates.TemplateResponse(
+        "registration.html",
+        {"request": request, "form_errors": form_errors, "login": login},
+    )
+
+
 async def auth(request):
-    data = await request.json()
-    async with SessionLocal() as session:
-        async with session.begin():
-            result = await session.execute(
-                select(User).filter(User.login == data["login"])
-            )
-            user = result.scalar_one_or_none()
-    if user and verify_password(data["password"], user.password):
-        token = create_access_token(data={"sub": user.user_id})
-        return JSONResponse({"access_token": token}, status_code=200)
-    return JSONResponse({"error": "Неправильные данные"}, status_code=401)
+    form_errors = {}
+    login = ""
 
-#удаление задачи 
+    if request.method == "POST":
+        data = await request.form()
+        login = data.get("login", "")
+        password = data.get("password", "")
+
+        if not login:
+            form_errors["login"] = "Логин не может быть пустым."
+        if len(password) < 8:
+            form_errors["password"] = "Пароль должен быть не менее 8 символов."
+
+        if not form_errors:
+            async with SessionLocal() as session:
+                async with session.begin():
+                    result = await session.execute(
+                        select(User).filter(User.login == login)
+                    )
+                user = result.scalar_one_or_none()
+
+                if user:
+                    if not verify_password(password, user.password):
+                        form_errors["password"] = "Неверный пароль."
+                else:
+                    form_errors["login"] = "Неверный логин."
+
+                if not form_errors:
+                    token = create_access_token(data={"sub": user.user_id})
+                    response = RedirectResponse("/storage.html")
+                    response.set_cookie(key="access_token", value=token)
+                    return response
+
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request, "form_errors": form_errors, "login": login},
+    )
+
+
+
+# удаление задачи
 @requires("authenticated")
 async def delete_task(request):
-    task_id = int(request.path_params["task_id"]) 
-    user_id = request.user.username 
+    task_id = int(request.path_params["task_id"])
+    user_id = request.user.username
 
     async with SessionLocal() as session:
         async with session.begin():
-            #точно ли задача текущего пользователя?
+            # точно ли задача текущего пользователя?
             result = await session.execute(
                 select(Task).filter(Task.task_id == task_id, Task.user_id == user_id)
             )
             task = result.scalar_one_or_none()
-            
+
             if task is None:
                 return JSONResponse({"error": "Задача не найдена"}, status_code=404)
 
@@ -172,15 +241,16 @@ async def delete_task(request):
 
     return JSONResponse({"message": f"Задача с айди={task_id} была удалена"})
 
-#получаем все задачи определенного пользователя
+
+# получаем все задачи определенного пользователя
 @requires("authenticated")
 async def get_tasks_all(request: Request):
-    category = request.path_params.get('category')
+    category = request.path_params.get("category")
     user_id = request.user.username
-     
+
     async with SessionLocal() as session:
         async with session.begin():
-            if category == "Важные":#ВАЖНЫЕ
+            if category == "Важные":  # ВАЖНЫЕ
                 results = await session.execute(
                     select(Task).filter(Task.user_id == user_id, Task.important == True)
                 )
@@ -192,7 +262,12 @@ async def get_tasks_all(request: Request):
                 tasks = results.scalars().all()
             elif category == "Сегодня":
                 twenty_four_hours_ago = datetime.now() - timedelta(hours=24)
-                results = await session.execute( select(Task).filter(Task.user_id == user_id, Task.created_at >= twenty_four_hours_ago,Task.completed == False)
+                results = await session.execute(
+                    select(Task).filter(
+                        Task.user_id == user_id,
+                        Task.created_at >= twenty_four_hours_ago,
+                        Task.completed == False,
+                    )
                 )
                 tasks = results.scalars().all()
             else:
@@ -200,11 +275,14 @@ async def get_tasks_all(request: Request):
                     select(Task).filter(Task.user_id == user_id)
                 )
                 tasks = results.scalars().all()
-                
-    
-    return templates.TemplateResponse("storage.html", {"request": request, "tasks": tasks, "category": category.capitalize()})
 
-#получаем все задачи определенного пользователя
+    return templates.TemplateResponse(
+        "storage.html",
+        {"request": request, "tasks": tasks, "category": category.capitalize()},
+    )
+
+
+# получаем все задачи определенного пользователя
 @requires("authenticated")
 async def get_tasks(request):
     user_id = request.user.username
@@ -214,8 +292,11 @@ async def get_tasks(request):
                 select(Task).filter(Task.user_id == user_id)
             )
             tasks = results.scalars().all()
-    
-    return templates.TemplateResponse("storage.html", {"request": request, "tasks": tasks, "category": "Все задачи"})
+
+    return templates.TemplateResponse(
+        "storage.html", {"request": request, "tasks": tasks, "category": "Все задачи"}
+    )
+
 
 @requires("authenticated")
 async def create_or_edit_task(request):
@@ -230,10 +311,17 @@ async def create_or_edit_task(request):
         completed = data.get("completed", False)
         data_stop = data.get("data_stop")
 
+        # Проверка на заполненность полей
+        if not heading or not task_text or not prize  or data_stop is None:
+            return JSONResponse(
+                {"error": "Не заполнены необходимые поля"},
+                status_code=400,
+            )
+
         try:
             data_stop = datetime.strptime(data_stop, "%Y-%m-%d").date()
         except (ValueError, TypeError):
-            data_stop = None
+            return JSONResponse({"error": "Неверный формат даты."}, status_code=400)
 
         async with SessionLocal() as session:
             async with session.begin():
@@ -248,7 +336,10 @@ async def create_or_edit_task(request):
                         task.completed = completed
                         task.data_stop = data_stop
                         await session.commit()
-                        return HTMLResponse(f'<script>window.location.href = "/storage.html";</script>', status_code=200)
+                        return HTMLResponse(
+                            f'<script>window.location.href = "/storage.html";</script>',
+                            status_code=200,
+                        )
                 else:
                     # Создаем новую задачу
                     task = Task(
@@ -263,10 +354,12 @@ async def create_or_edit_task(request):
                     )
                     session.add(task)
                     await session.commit()
-                    return HTMLResponse(f'<script>window.location.href = "/storage.html";</script>', status_code=200)
+                    return JSONResponse({"task_id": task.task_id}, status_code=200)
 
-        return JSONResponse({"error": "Task not found or no changes made"}, status_code=404)
-    
+        return JSONResponse(
+            {"error": "Task not found or no changes made"}, status_code=404
+        )
+
     elif request.method == "GET":
         task_id = request.query_params.get("task_id")
         task = None
@@ -277,13 +370,14 @@ async def create_or_edit_task(request):
         context = {"request": request, "task": task}
         return templates.TemplateResponse("task_dob.html", context)
 
+
 # получение задачи по ID
 @requires("authenticated")
 async def get_task_by_id(request):
     print("все плохо")
     task_id = int(request.path_params["task_id"])
     user_id = request.user.username
-   
+
     async with SessionLocal() as session:
         async with session.begin():
             result = await session.execute(
@@ -306,12 +400,13 @@ async def get_task_by_id(request):
         return JSONResponse(task_dict)
     else:
         return JSONResponse({"error": "Task not found"}, status_code=404)
-    
- #маршруты
+
+
+# маршруты
 routes = [
-    Route("/storage.html", get_tasks, methods=["GET"]),
+    Route("/storage.html", get_tasks, methods=["GET", "POST"]),
     Route("/tasks/{category}", get_tasks_all, methods=["GET"]),
-    Route("/task_dob.html", create_or_edit_task, methods=["GET", "POST"]), 
+    Route("/task_dob.html", create_or_edit_task, methods=["GET", "POST"]),
     Route("/registration", registration, methods=["POST"]),
     Route("/auth", auth, methods=["POST"]),
     Route("/", homepage),
@@ -324,5 +419,5 @@ routes = [
 ]
 
 app = Starlette(debug=True, routes=routes)
-app.add_middleware(SessionMiddleware, secret_key='your-secret-key')  #ключ для сессии
+app.add_middleware(SessionMiddleware, secret_key="your-secret-key")  # ключ для сессии
 app.add_middleware(AuthenticationMiddleware, backend=JWTAuthenticationBackend())
